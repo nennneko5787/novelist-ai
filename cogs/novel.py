@@ -69,6 +69,9 @@ class Novel(commands.Cog):
         if not custom_id:
             return
 
+        print(interaction.user)
+        print(interaction.user.id)
+
         try:
             direction, novel_id, raw_page = custom_id.split(":")
             page = int(raw_page)
