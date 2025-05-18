@@ -1,0 +1,4 @@
+discord.py
+asyncpg
+python-dotenv
+google-genai
