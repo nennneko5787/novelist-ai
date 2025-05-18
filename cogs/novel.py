@@ -140,6 +140,7 @@ class Novel(commands.Cog):
             return
 
         text = history[page]
+        print(text)
         chunks = split_by_chunk(text)
 
         total_pages = len(history)
