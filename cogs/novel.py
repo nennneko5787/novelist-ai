@@ -41,7 +41,7 @@ def split_by_chunk(s: str, chunk_size: int = 4096) -> List[str]:
 
 
 def trim_page_text(text: str) -> str:
-    return text.rstrip("\n(次のページ)")
+    return text.rstrip("\n次のページ")
 
 
 class Novel(commands.Cog):
@@ -123,7 +123,7 @@ class Novel(commands.Cog):
             content = await chat.send_message("次のページ")
             text = trim_page_text(content.text)
 
-            if "(終わり)" in text:
+            if "(終わり" in text:
                 finished = True
             else:
                 history += split_by_chunk(text)
