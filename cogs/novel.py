@@ -122,11 +122,11 @@ class Novel(commands.Cog):
 
             content = await chat.send_message("次のページ")
             text = trim_page_text(content.text)
+            history += split_by_chunk(text)
 
             if "(終わり" in text:
                 finished = True
             else:
-                history += split_by_chunk(text)
                 finished = False
 
             await self.pool.execute(
