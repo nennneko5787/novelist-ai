@@ -35,7 +35,7 @@ def random_id(n: int) -> str:
     return "".join(random.choices(string.ascii_letters + string.digits, k=n))
 
 
-def split_by_chunk(s: str, chunk_size: int = 2048) -> List[str]:
+def split_by_chunk(s: str, chunk_size: int = 800) -> List[str]:
     return [s[i : i + chunk_size] for i in range(0, len(s), chunk_size)]
 
 
