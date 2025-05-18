@@ -35,7 +35,7 @@ def random_id(n: int) -> str:
     return "".join(random.choices(string.ascii_letters + string.digits, k=n))
 
 
-def split_by_chunk(s: str, chunk_size: int = 800) -> List[str]:
+def split_by_chunk(s: str, chunk_size: int = 2048) -> List[str]:
     return [s[i : i + chunk_size] for i in range(0, len(s), chunk_size)]
 
 
@@ -176,7 +176,7 @@ class Novel(commands.Cog):
             )
         )
 
-        await interaction.edit_original_response(embeds=embeds, view=view)
+        await interaction.message.edit(embeds=embeds, view=view)
 
     @app_commands.command(name="new", description="新しい小説を作成します。")
     async def new_novel(self, interaction: discord.Interaction, story: str):
