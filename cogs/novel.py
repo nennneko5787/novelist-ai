@@ -176,7 +176,8 @@ class Novel(commands.Cog):
             )
         )
 
-        await interaction.message.edit(embeds=embeds, view=view)
+        print(len(embeds))
+        await interaction.edit_original_response(embeds=embeds, view=view)
 
     @app_commands.command(name="new", description="新しい小説を作成します。")
     async def new_novel(self, interaction: discord.Interaction, story: str):
