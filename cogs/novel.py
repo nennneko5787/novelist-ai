@@ -245,11 +245,11 @@ class Novel(commands.Cog):
         )
         return [
             app_commands.Choice(
-                name=f"{row['story'][0:10]} (ID: {row['id']})", value=row["id"]
+                name=f"{row['story'][0:60]} (ID: {row['id']})", value=row["id"]
             )
             for row in rows
             if row["story"].startswith(current)
-        ]
+        ][0:25]
 
     @app_commands.command(
         name="call", description="小説共有コードから小説を読み込みます。"
