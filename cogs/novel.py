@@ -209,12 +209,14 @@ class Novel(commands.Cog):
 
         embeds = [
             discord.Embed(
-                title=f"ページ 1 / 1 (Part {i + 1}/{len(chunks)})",
+                title=story,
                 description=chunk,
                 color=discord.Color.blurple(),
             )
-            .set_author(name=novel_id)
-            .set_footer(text=story)
+            .set_author(name=f"Novel ID: {novel_id}")
+            .set_footer(
+                text=f"ページ 1 / 1 (Part {i + 1}/{len(chunks)})",
+            )
             for i, chunk in enumerate(chunks)
         ]
 
@@ -272,12 +274,14 @@ class Novel(commands.Cog):
 
         embeds = [
             discord.Embed(
-                title=f"ページ 1 / {len(row['data'])} (Part {i + 1}/{len(chunks)})",
+                title=row["story"],
                 description=chunk,
                 color=discord.Color.blurple(),
             )
-            .set_author(name=novel_id)
-            .set_footer(text=row["story"])
+            .set_author(name=f"Novel ID: {novel_id}")
+            .set_footer(
+                text=f"ページ 1 / {len(row['data'])} (Part {i + 1}/{len(chunks)})"
+            )
             for i, chunk in enumerate(chunks)
         ]
 
