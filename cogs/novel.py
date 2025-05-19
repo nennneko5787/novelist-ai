@@ -70,9 +70,6 @@ class Novel(commands.Cog):
         if not custom_id:
             return
 
-        print(interaction.user)
-        print(interaction.user.id)
-
         try:
             direction, novel_id, raw_page = custom_id.split(":")
             page = int(raw_page)
@@ -148,7 +145,6 @@ class Novel(commands.Cog):
             return
 
         text = history[page]
-        print(text)
         chunks = split_by_chunk(text)
 
         total_pages = len(history)
@@ -184,7 +180,6 @@ class Novel(commands.Cog):
             )
         )
 
-        print(len(embeds))
         await interaction.edit_original_response(embeds=embeds, view=view)
 
     @app_commands.command(name="new", description="新しい小説を作成します。")
