@@ -244,7 +244,9 @@ class Novel(commands.Cog):
             "SELECT * FROM novels WHERE owner = $1", interaction.user.id
         )
         return [
-            app_commands.Choice(name=f"{row['name']} (ID: {row['id']})", value=current)
+            app_commands.Choice(
+                name=f"{row['story'][0:60]} (ID: {row['id']})", value=current
+            )
             for row in rows
             if row["name"].startswith(current)
         ]
