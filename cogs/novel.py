@@ -248,7 +248,7 @@ class Novel(commands.Cog):
                 name=f"{row['story'][0:60]} (ID: {row['id']})", value=current
             )
             for row in rows
-            if row["name"].startswith(current)
+            if row["story"].startswith(current)
         ]
 
     @app_commands.command(
