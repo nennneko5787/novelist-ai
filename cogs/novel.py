@@ -35,8 +35,7 @@ def random_id(n: int) -> str:
     return "".join(random.choices(string.ascii_letters + string.digits, k=n))
 
 
-def split_by_chunk(s: str, chunk_size: int = 4096) -> List[str]:
-    chunk_size -= 1
+def split_by_chunk(s: str, chunk_size: int = 2048) -> List[str]:
     return [s[i : i + chunk_size] for i in range(0, len(s), chunk_size)]
 
 
@@ -69,6 +68,9 @@ class Novel(commands.Cog):
         if not custom_id:
             return
 
+        print(interaction.user)
+        print(interaction.user.id)
+
         try:
             direction, novel_id, raw_page = custom_id.split(":")
             page = int(raw_page)
@@ -91,7 +93,6 @@ class Novel(commands.Cog):
         finished: bool = row["finished"]
         story: str = row["story"]
 
-        # これ以上生成できない場合
         if page == len(history) and not finished:
             if novel_id in self.in_page:
                 await interaction.followup.send("現在生成中です...", ephemeral=True)
@@ -122,11 +123,11 @@ class Novel(commands.Cog):
 
             content = await chat.send_message("次のページ")
             text = trim_page_text(content.text)
+            history.append(text)
 
-            if "(終わり)" in text:
+            if "(終わり" in text:
                 finished = True
             else:
-                history += split_by_chunk(text)
                 finished = False
 
             await self.pool.execute(
@@ -140,31 +141,32 @@ class Novel(commands.Cog):
 
         elif page >= len(history):
             await interaction.followup.send(
-                f"これ以上ページはありません。", ephemeral=True
+                "これ以上ページはありません。", ephemeral=True
             )
             return
 
-        # 正常にページ表示
         text = history[page]
+        print(text)
+        chunks = split_by_chunk(text)
 
         total_pages = len(history)
         current_page_number = page + 1
 
-        # ページ数の表示は finished か否かで変化させる
         if not finished and page >= total_pages:
-            display_total = current_page_number  # 未生成ページは表示しない
+            display_total = current_page_number
         else:
             display_total = total_pages
 
-        embed = (
+        embeds = [
             discord.Embed(
-                title=f"ページ {current_page_number} / {display_total}",
-                description=text,
+                title=f"ページ {current_page_number} / {display_total} (Part {i + 1}/{len(chunks)})",
+                description=chunk,
                 color=discord.Color.blurple(),
             )
             .set_author(name=novel_id)
             .set_footer(text=story)
-        )
+            for i, chunk in enumerate(chunks)
+        ]
 
         view = discord.ui.View(timeout=None)
         view.add_item(
@@ -180,7 +182,8 @@ class Novel(commands.Cog):
             )
         )
 
-        await interaction.edit_original_response(embed=embed, view=view)
+        print(len(embeds))
+        await interaction.edit_original_response(embeds=embeds, view=view)
 
     @app_commands.command(name="new", description="新しい小説を作成します。")
     @app_commands.rename(story="ストーリー")
@@ -200,19 +203,21 @@ class Novel(commands.Cog):
 
         content = await chat.send_message(story)
         text = trim_page_text(content.text)
-        data = split_by_chunk(text)
+        data = [text]
 
         novel_id = random_id(12)
+        chunks = split_by_chunk(text)
 
-        embed = (
+        embeds = [
             discord.Embed(
-                title="ページ 1 / 1",
-                description=data[0],
+                title=f"ページ 1 / 1 (Part {i + 1}/{len(chunks)})",
+                description=chunk,
                 color=discord.Color.blurple(),
             )
             .set_author(name=novel_id)
             .set_footer(text=story)
-        )
+            for i, chunk in enumerate(chunks)
+        ]
 
         view = discord.ui.View(timeout=None)
         view.add_item(
@@ -220,7 +225,7 @@ class Novel(commands.Cog):
         )
         view.add_item(discord.ui.Button(emoji="➡️", custom_id=f"next:{novel_id}:0"))
 
-        await interaction.followup.send(embed=embed, view=view)
+        await interaction.followup.send(embeds=embeds, view=view)
 
         await self.pool.execute(
             "INSERT INTO novels (id, data, owner, story, finished) VALUES ($1, $2, $3, $4, $5)",
@@ -257,16 +262,22 @@ class Novel(commands.Cog):
             novel_id = novel_id.split("ID: ")[1].replace(")", "")
 
         row = await self.pool.fetchrow("SELECT * FROM novels WHERE id = $1", novel_id)
+        if not row:
+            await interaction.followup.send("小説が見つかりません。", ephemeral=True)
+            return
 
-        embed = (
+        chunks = split_by_chunk(row["data"][0])
+
+        embeds = [
             discord.Embed(
-                title=f"ページ 1 / {len(row["data"])}",
-                description=row["data"][0],
+                title=f"ページ 1 / {len(row['data'])} (Part {i + 1}/{len(chunks)})",
+                description=chunk,
                 color=discord.Color.blurple(),
             )
             .set_author(name=novel_id)
             .set_footer(text=row["story"])
-        )
+            for i, chunk in enumerate(chunks)
+        ]
 
         view = discord.ui.View(timeout=None)
         view.add_item(
@@ -274,7 +285,7 @@ class Novel(commands.Cog):
         )
         view.add_item(discord.ui.Button(emoji="➡️", custom_id=f"next:{novel_id}:0"))
 
-        await interaction.followup.send(embed=embed, view=view)
+        await interaction.followup.send(embeds=embeds, view=view)
 
 
 async def setup(bot: commands.Bot):
