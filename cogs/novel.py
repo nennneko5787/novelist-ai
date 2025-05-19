@@ -183,6 +183,10 @@ class Novel(commands.Cog):
         await interaction.edit_original_response(embed=embed, view=view)
 
     @app_commands.command(name="new", description="新しい小説を作成します。")
+    @app_commands.rename(story="ストーリー")
+    @app_commands.describe(
+        story="小説のストーリー。できるだけ長く書くことを推奨します。"
+    )
     async def new_novel(self, interaction: discord.Interaction, story: str):
         await interaction.response.defer()
 
@@ -227,11 +231,30 @@ class Novel(commands.Cog):
             "(終わり)" in text,
         )
 
+    async def callAutoComplete(
+        self,
+        interaction: discord.Interaction,
+        current: str,
+    ) -> list[app_commands.Choice[str]]:
+        rows = await self.pool.fetch(
+            "SELECT * FROM novels WHERE owner = $1", interaction.user.id
+        )
+        return [
+            app_commands.Choice(name=f"{row['name']} (ID: {row['id']})", value=current)
+            for row in rows
+            if row["name"].startswith(current)
+        ]
+
     @app_commands.command(
         name="call", description="小説共有コードから小説を読み込みます。"
     )
+    @app_commands.rename(novel_id="小説ID")
+    @app_commands.describe(novel_id="埋め込みから確認できる12桁の英数字。")
+    @app_commands.autocomplete(novel_id=callAutoComplete)
     async def call_novel(self, interaction: discord.Interaction, novel_id: str):
         await interaction.response.defer()
+        if len(novel_id) > 12:
+            novel_id = novel_id.split("ID: ")[1].replace(")", "")
 
         row = await self.pool.fetchrow("SELECT * FROM novels WHERE id = $1", novel_id)
 
