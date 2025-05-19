@@ -157,12 +157,14 @@ class Novel(commands.Cog):
 
         embeds = [
             discord.Embed(
-                title=f"ページ {current_page_number} / {display_total} (Part {i + 1}/{len(chunks)})",
+                title=f"{'[完結済み]' if finished else ''} {story}",
                 description=chunk,
                 color=discord.Color.blurple(),
             )
-            .set_author(name=novel_id)
-            .set_footer(text=story)
+            .set_author(name=f"Novel ID: {novel_id}")
+            .set_footer(
+                text=f"ページ {current_page_number} / {display_total} (Part {i + 1}/{len(chunks)})"
+            )
             for i, chunk in enumerate(chunks)
         ]
 
