@@ -252,7 +252,7 @@ class Novel(commands.Cog):
     @app_commands.command(
         name="call", description="小説共有コードから小説を読み込みます。"
     )
-    @app_commands.rename(novel_id="小説ID")
+    @app_commands.rename(novel_id="小説id")
     @app_commands.describe(novel_id="埋め込みから確認できる12桁の英数字。")
     @app_commands.autocomplete(novel_id=callAutoComplete)
     async def call_novel(self, interaction: discord.Interaction, novel_id: str):
