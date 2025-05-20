@@ -99,45 +99,45 @@ class Novel(commands.Cog):
                 return
 
             self.in_page.add(novel_id)
-
-            chat = self.genai.aio.chats.create(
-                model="gemini-2.0-flash",
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_INSTRUCT,
-                    safety_settings=SAFETYSETTINGS,
-                ),
-            )
-
-            for count, text in enumerate(history):
-                prompt = story if count == 0 else "次のページ"
-                chat.record_history(
-                    user_input=types.Content(
-                        parts=[types.Part(text=prompt)], role="user"
+            try:
+                chat = self.genai.aio.chats.create(
+                    model="gemini-2.0-flash",
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCT,
+                        safety_settings=SAFETYSETTINGS,
                     ),
-                    model_output=[
-                        types.Content(parts=[types.Part(text=text)], role="model")
-                    ],
-                    automatic_function_calling_history=[],
-                    is_valid=True,
                 )
-
-            content = await chat.send_message("次のページ")
-            text = trim_page_text(content.text)
-            history.append(text)
-
-            if "(終わり" in text:
-                finished = True
-            else:
-                finished = False
-
-            await self.pool.execute(
-                "UPDATE novels SET data = $1, finished = $2 WHERE id = $3",
-                history,
-                finished,
-                novel_id,
-            )
-
-            self.in_page.remove(novel_id)
+    
+                for count, text in enumerate(history):
+                    prompt = story if count == 0 else "次のページ"
+                    chat.record_history(
+                        user_input=types.Content(
+                            parts=[types.Part(text=prompt)], role="user"
+                        ),
+                        model_output=[
+                            types.Content(parts=[types.Part(text=text)], role="model")
+                        ],
+                        automatic_function_calling_history=[],
+                        is_valid=True,
+                    )
+    
+                content = await chat.send_message("次のページ")
+                text = trim_page_text(content.text)
+                history.append(text)
+    
+                if "(終わり" in text:
+                    finished = True
+                else:
+                    finished = False
+    
+                await self.pool.execute(
+                    "UPDATE novels SET data = $1, finished = $2 WHERE id = $3",
+                    history,
+                    finished,
+                    novel_id,
+                )
+            finally:
+                self.in_page.remove(novel_id)
 
         elif page >= len(history):
             await interaction.followup.send(
