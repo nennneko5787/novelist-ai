@@ -42,7 +42,7 @@ def split_by_chunk(s: str, chunk_size: int = 2048) -> List[str]:
 
 
 def trim_page_text(text: str) -> str:
-    return text.rstrip("\n(次のページ)").rstrip("\n（次のページ）")
+    return text.removesuffix("\n(次のページ)").removesuffix("\n（次のページ）")
 
 
 class Novel(commands.Cog):
