@@ -158,7 +158,7 @@ class Novel(commands.Cog):
 
         embeds = [
             discord.Embed(
-                title=f"{'[完結済み]' if finished else ''} {story}",
+                title=f"{'[完結済み]' if finished else ''} {story[0:64]}",
                 description=chunk,
                 color=discord.Color.blurple(),
             )
@@ -210,7 +210,7 @@ class Novel(commands.Cog):
 
         embeds = [
             discord.Embed(
-                title=story,
+                title=story[0:64],
                 description=chunk,
                 color=discord.Color.blurple(),
             )
@@ -275,7 +275,7 @@ class Novel(commands.Cog):
 
         embeds = [
             discord.Embed(
-                title=row["story"],
+                title=row["story"][0:64],
                 description=chunk,
                 color=discord.Color.blurple(),
             )
