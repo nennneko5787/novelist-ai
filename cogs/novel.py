@@ -248,7 +248,7 @@ class Novel(commands.Cog):
         )
         return [
             app_commands.Choice(
-                name=f"{row['story'][0:60]} ({row['created_at'].strftime('%Y年%m月%d日 %H:%M:%S')}) (ID: {row['id']})",
+                name=f"{row['story'][0:20]} ({row['created_at'].strftime('%Y年%m月%d日 %H:%M:%S')}) (ID: {row['id']})",
                 value=row["id"],
             )
             for row in rows
